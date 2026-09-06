@@ -1,0 +1,48 @@
+data:
+  ticker: "AAPL"
+  start_date: "2018-01-01"
+  end_date: "2024-12-31"
+  interval: "1d"
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+
+features:
+  ma_windows: [5, 10, 20, 50]
+  rsi_period: 14
+  bollinger_window: 20
+  bollinger_std: 2
+  volatility_window: 21
+
+split:
+  train_ratio: 0.8
+
+models:
+  arima:
+    order: [5, 1, 0]
+  sarima:
+    order: [1, 1, 1]
+    seasonal_order: [1, 1, 1, 5]
+  prophet:
+    daily_seasonality: false
+    weekly_seasonality: true
+    yearly_seasonality: true
+    changepoint_prior_scale: 0.05
+  lstm:
+    lookback: 30
+    units: 64
+    dropout: 0.2
+    epochs: 30
+    batch_size: 32
+    learning_rate: 0.001
+
+forecast:
+  horizon: 30
+
+backtest:
+  initial_cash: 10000
+  transaction_cost: 0.001
+
+paths:
+  results: "results"
+  plots: "results/plots"
+  models: "results/models"
