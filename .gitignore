@@ -1,7 +1,10 @@
-_sources/
+.venv/
 venv/
+node_modules/
+dist/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.DS_Store
 data/
 results/
-.DS_Store

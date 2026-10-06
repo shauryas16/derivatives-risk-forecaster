@@ -1,123 +1,70 @@
-# Derivatives Risk & Forecasting Toolkit
+# VolatilityLab
 
-A Streamlit application for quantitative market analysis, combining time-series forecasting with derivatives pricing and portfolio risk analysis.
+A dark-first financial analysis platform for time-series forecasting, European option valuation and portfolio tail-risk analysis. The React interface is a separate client of a FastAPI service; all financial calculations remain in the existing Python modules under `src/`.
 
-**🔗 Live demo:** [derivatives-risk-forecaster.streamlit.app](https://derivatives-risk-forecaster.streamlit.app/)
+## Architecture
 
-The toolkit studies an underlying asset from two connected perspectives:
-
-- **Forecasting** — analyses historical market behaviour and generates time-series forecasts using ARIMA/SARIMA.
-- **Derivatives & Risk** — prices European options, measures their sensitivities, builds portfolios, and estimates downside risk using Monte Carlo methods.
-
-A market-data fetcher ties the two together: pulling a ticker's realised volatility and spot price from the same data pipeline used for forecasting, then carrying those values directly into the derivatives pricing and risk pages — so the option pricing and VaR calculations are grounded in the same market read as the forecast, rather than arbitrary example numbers.
-
-**Author:** Shaurya Sharma ([@shauryas16](https://github.com/shauryas16))
-
----
-
-## Overview
-
-```
-                    ┌─────────────────────┐
-                    │     Market Data     │
-                    │     (yfinance)      │
-                    └──────────┬──────────┘
-                               │
-                ┌──────────────┴───────────────┐
-                │                              │
-                ▼                              ▼
-     ┌───────────────────────┐       ┌────────────────────────┐
-     │    FORECASTING        │       │   DERIVATIVES & RISK   │
-     │                       │       │                        │
-     │ Feature Engineering   │       │ Black-Scholes Pricing  │
-     │ SMA / EMA / RSI       │◄──────┤ Greeks Analysis        │
-     │ Bollinger / MACD      │ spot, │ Monte Carlo Pricing    │
-     │ Realised Volatility   │ vol   │ Implied Volatility     │
-     │         │             │──────►│ Portfolio Analytics    │
-     │         ▼             │       │ VaR / CVaR             │
-     │    ARIMA / SARIMA     │       └────────────────────────┘
-     │         │             │
-     │         ▼             │
-     │  Forecast Evaluation  │
-     │         │             │
-     │         ▼             │
-     │      Backtesting      │
-     └───────────────────────┘
+```text
+React + TypeScript + Vite
+  ├─ Tailwind CSS foundations, custom terminal styling
+  ├─ Framer Motion page transitions
+  └─ Recharts interactive charts
+          │ /api/* (Vite proxies to localhost:8000)
+          ▼
+FastAPI (api.py)
+  ├─ Forecasting API ── src/forecasting (yfinance, features, ARIMA/SARIMA, backtest)
+  ├─ Derivatives API ── src/derivatives (Black–Scholes, Greeks, IV, Monte Carlo)
+  └─ Risk API ───────── src/risk (portfolio aggregation, VaR/CVaR)
 ```
 
-## Features
+The browser never reimplements the models. API responses are produced by the project's existing modules. Market reads require network access to Yahoo Finance.
 
-### Forecasting
-- Live and historical market data via `yfinance`, configurable ticker and date range
-- Feature engineering: SMA/EMA, RSI, Bollinger Bands, MACD, realised volatility, volume features
-- ARIMA and SARIMA forecasting with a chronological train/test split
-- Forecast evaluation: RMSE, MAE, MAPE, directional accuracy
-- Forecast-based backtesting: strategy return, buy-and-hold benchmark, Sharpe ratio, maximum drawdown, transaction costs
+## Run locally
 
-### Derivatives & Risk
-- **Option Valuation** — Black-Scholes pricing for European calls/puts, with price-vs-spot sensitivity analysis
-- **Sensitivity Analysis (Greeks)** — Delta, Gamma, Vega, Theta with interactive sensitivity plots
-- **Implied Volatility Estimator** — solves for volatility from an observed market price
-- **Simulation-Based Pricing** — Monte Carlo simulated price paths, option payoff estimate with confidence interval, cross-checked against Black-Scholes
-- **Position & Portfolio Analysis** — long/short call/put positions, aggregate value and net Greeks
-- **Tail Risk Analysis (VaR/CVaR)** — Monte Carlo Value-at-Risk and Conditional VaR across multiple confidence levels, with the full simulated P&L distribution
-
-### Market Data Integration
-A sidebar tool on the Derivatives & Risk side fetches a ticker's recent price history, computes its realised (annualised) volatility over a configurable lookback window, and uses the resulting spot price and volatility as the default inputs across every pricing and risk page — replacing manually-typed placeholder numbers with a live market read.
-
----
-
-## Setup
+Requirements: Python 3.10–3.13 and Node.js 20 or newer.
 
 ```bash
 git clone https://github.com/shauryas16/derivatives-risk-forecaster.git
 cd derivatives-risk-forecaster
-python3 -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
+
+# Python API (first terminal)
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py
+uvicorn api:app --reload --host 127.0.0.1 --port 8000
+
+# Web client (second terminal)
+npm install
+npm run dev
 ```
 
-> Recommended: Python 3.10 – 3.13.
+Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The browser client proxies `/api` requests to the local Python service. For a production client build, run `npm run build`; serve the generated `dist/` directory from your preferred static host and configure `/api` to reach the FastAPI service. Set `CORS_ALLOW_ORIGINS` to a comma-separated list of trusted frontend origins when the production client is hosted separately. FastAPI docs are at `http://127.0.0.1:8000/docs`.
 
----
+## Included workflows
 
-## Methodology
+- **Overview:** fetch a real ticker snapshot and realised volatility; the result pre-fills derivative inputs.
+- **Forecast:** ticker/date controls, training split, ARIMA and SARIMA, market snapshot, SMA price chart, Bollinger bands, RSI, MACD, realised volatility, out-of-sample evaluation, signal backtest and buy-and-hold comparison.
+- **Option pricing:** Black–Scholes value and price-versus-spot sensitivity.
+- **Greeks:** Delta, Gamma, Vega and Theta with spot sensitivity curves.
+- **Implied volatility:** solve from a market premium and show repricing residual.
+- **Monte Carlo:** seeded GBM simulation, confidence interval, sample paths, terminal distribution and Black–Scholes comparison.
+- **Portfolio:** add signed long/short option legs, aggregate value and Greeks, inspect the ledger and position sensitivities.
+- **Tail risk:** full portfolio repricing, configurable horizon/confidence/simulation count, VaR/CVaR, P&L distribution and confidence comparison.
 
-**Time-series forecasting.** ARIMA and SARIMA are used as interpretable statistical models for historical price series — their parameters (autoregressive order, differencing, seasonal terms) can be reasoned about directly, unlike a black-box sequence model. Models are fit and evaluated on a chronological train/test split, since financial time series are sequentially dependent and a random split would leak future information into training.
+## API routes
 
-**Derivatives pricing.** European-style option prices (contracts exercisable only at expiration, the standard assumption behind the Black-Scholes formula) are calculated via Black-Scholes. Monte Carlo pricing provides an independent numerical cross-check by simulating the underlying's future paths under geometric Brownian motion and averaging the discounted payoff.
+- `GET /api/health`, `GET /api/config`
+- `POST /api/forecast`, `POST /api/backtest`
+- `GET /api/market/{ticker}?window=21`
+- `POST /api/price`, `/api/greeks`, `/api/implied-vol`, `/api/monte-carlo`, `/api/portfolio`, `/api/risk`
 
-**Risk analysis.** Portfolio risk is estimated by repricing the full portfolio under simulated underlying-price scenarios via Monte Carlo, rather than relying on a linear (delta-only) approximation — this captures option convexity correctly, which matters for portfolios with meaningful Gamma exposure. VaR and CVaR are reported at multiple confidence levels to describe both the loss threshold and the expected loss beyond it.
+## Notes and limitations
 
----
+- Yahoo Finance availability, network access and rate limits affect live market-data workflows. The UI reports API errors and does not fill in synthetic market data.
+- ARIMA/SARIMA fitting may take time for longer histories; run the analysis explicitly after choosing dates/models.
+- VaR simulation uses the first position's rate and volatility as representative scenario parameters, as the existing risk engine specifies.
+- Prices and risk measures retain the project's European-option and GBM assumptions. This is a research tool, not investment advice.
 
 ## Validation
 
-Core calculations were tested independently before integration:
-- Black-Scholes pricing checked against put-call parity
-- Monte Carlo pricing checked for convergence to the Black-Scholes value within its confidence interval
-- Greeks checked at deep in-the-money and out-of-the-money boundaries (Delta → 1 and → 0)
-- Portfolio aggregation checked for exact cancellation of offsetting long/short positions
-- VaR/CVaR checked for monotonicity across confidence levels and CVaR ≥ VaR at every level
-- Market data spot-checked against live prices
-
----
-
-## Backtesting
-
-The forecasting backtest is intentionally simple: forecasts are converted into long/flat signals and evaluated against a buy-and-hold benchmark. It demonstrates the complete forecast → signal → performance pipeline rather than a tuned trading strategy.
-
----
-
-## Limitations
-
-- Derivatives pricing assumes European-style exercise (exercisable only at expiration) — the standard case Black-Scholes covers in closed form
-- Forecasting uses ARIMA/SARIMA; no deep-learning models are included
-- Intended for research and educational analysis, not investment advice
-
----
-
-## Tech Stack
-
-Python · NumPy · Pandas · SciPy · Statsmodels · Scikit-learn · yfinance · Streamlit · Plotly
+The existing calculation modules were kept unchanged. API smoke checks compare their outputs directly: for example, Black–Scholes returns `$10.4506` for the standard one-year ATM call inputs (`S=K=100`, `r=5%`, `σ=20%`), and the HTTP/UI workflows use those same Python routines. No automated test files are currently included in the repository.
