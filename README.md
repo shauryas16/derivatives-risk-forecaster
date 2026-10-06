@@ -40,6 +40,10 @@ npm run dev
 
 Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The browser client proxies `/api` requests to the local Python service. For a production client build, run `npm run build`; serve the generated `dist/` directory from your preferred static host and configure `/api` to reach the FastAPI service. Set `CORS_ALLOW_ORIGINS` to a comma-separated list of trusted frontend origins when the production client is hosted separately. FastAPI docs are at `http://127.0.0.1:8000/docs`.
 
+## Deploy to Render
+
+The repository includes a Dockerfile and Render Blueprint for a single service that builds the Vite frontend and serves it alongside FastAPI. To deploy, connect the GitHub repository in Render and create a new Blueprint from `render.yaml`. Render builds the container, checks `/api/health`, and serves the application from the generated service URL. Subsequent pushes to `main` deploy automatically. Live market-data screens require outbound access to Yahoo Finance.
+
 ## Included workflows
 
 - **Overview:** fetch a real ticker snapshot and realised volatility; the result pre-fills derivative inputs.

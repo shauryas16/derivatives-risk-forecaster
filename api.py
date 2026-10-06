@@ -3,12 +3,15 @@ from __future__ import annotations
 
 from datetime import date
 import os
+from pathlib import Path
 from typing import Literal
 
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.derivatives.black_scholes import bs_price
@@ -230,3 +233,18 @@ def risk(req: RiskRequest):
         table=var_summary_table(pf, horizon_days=req.horizon_days, num_simulations=req.num_simulations, seed=req.seed)
         return {**{k:v for k,v in result.items() if k != "pnl_series"}, "pnl_series": result["pnl_series"].tolist(), "summary": table.reset_index().to_dict(orient="records")}
     except Exception as exc: fail(exc)
+
+
+# In a container deployment FastAPI serves the built React client and API from
+# one origin. During local development, Vite serves the client separately.
+WEB_DIST = Path(__file__).resolve().parent / "dist"
+if (WEB_DIST / "assets").is_dir():
+    app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="frontend-assets")
+
+
+@app.get("/", include_in_schema=False)
+def frontend():
+    index = WEB_DIST / "index.html"
+    if not index.is_file():
+        raise HTTPException(status_code=404, detail="Frontend build not found. Run npm run build.")
+    return FileResponse(index)

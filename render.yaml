@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: volatilitylab
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    healthCheckPath: /api/health
