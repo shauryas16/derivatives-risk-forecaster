@@ -1,6 +1,8 @@
 # VolatilityLab
 
-A dark-first financial analysis platform for time-series forecasting, European option valuation and portfolio tail-risk analysis. The React interface is a separate client of a FastAPI service; all financial calculations remain in the existing Python modules under `src/`.
+A light-first financial analysis platform for time-series forecasting, European option valuation and portfolio tail-risk analysis. The React interface is a separate client of a FastAPI service; all financial calculations remain in the existing Python modules under `src/`.
+
+The interface uses a white and charcoal palette, Inter typography, a subtle full-page pointer ripple, and restrained hover states. Its persistent navigation groups forecasting, derivatives, portfolio risk and documentation in one workspace.
 
 ## Architecture
 
@@ -42,7 +44,7 @@ Open the Vite URL shown in the terminal (normally `http://localhost:5173`). The 
 
 ## Deploy to Render
 
-The repository includes a Dockerfile and Render Blueprint for a single service that builds the Vite frontend and serves it alongside FastAPI. To deploy, connect the GitHub repository in Render and create a new Blueprint from `render.yaml`. Render builds the container, checks `/api/health`, and serves the application from the generated service URL. Subsequent pushes to `main` deploy automatically. Live market-data screens require outbound access to Yahoo Finance.
+The repository includes a Dockerfile and Render Blueprint for a single service that builds the Vite frontend and serves it alongside FastAPI. The `volatilitylab` Render service is configured to deploy from `main`. For a new Render setup, connect the GitHub repository and create a Blueprint from `render.yaml`. Render builds the container, checks `/api/health`, and serves the application at `https://volatilitylab.onrender.com`. Subsequent pushes to `main` deploy automatically. Live market-data screens require outbound access to Yahoo Finance.
 
 ## Included workflows
 
