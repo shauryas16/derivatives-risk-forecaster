@@ -1,0 +1,15 @@
+/* Site-wide pointer ripples, typography and precise hover states. */
+.app-shell{position:relative;isolation:isolate;background-image:none;--ripple-x:50vw;--ripple-y:50vh}
+.global-ripple-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(circle at 1px 1px,#00000015 1px,transparent 1.3px);background-size:34px 34px}
+.global-ripple-bg:after{content:"";position:absolute;inset:0;background:radial-gradient(circle 150px at var(--ripple-x) var(--ripple-y),transparent 0 58px,#00000009 59px 60px,transparent 61px 101px,#00000008 102px 103px,transparent 104px 145px,#00000007 146px 147px,transparent 148px),radial-gradient(circle 310px at var(--ripple-x) var(--ripple-y),#00000007,transparent 100%);transition:background .09s linear}
+.main-area{position:relative;z-index:1}
+.sidebar{transition:box-shadow .2s ease;width:252px}.sidebar:hover{width:252px;box-shadow:6px 0 24px #00000008}.nav-item{transform:none!important;transition:color .18s ease,background-color .18s ease,border-color .18s ease!important}.nav-item:hover{transform:none!important}.nav-active-glow{display:none}
+.brand small{font:500 9px/1.2 'Inter',sans-serif;letter-spacing:1.1px;color:#777}
+.panel:hover,.metric-panel:hover,.metric:hover{transform:none!important;border:1px solid #111!important;box-shadow:0 3px 15px #00000008!important;background:#fff!important}
+.hero-strip:hover .hero-orb{transform:none!important}.hero-title-base,.hero-title-reveal{line-height:1.2;white-space:nowrap}.hero-title-reveal{color:#111;mix-blend-mode:multiply;text-shadow:0 1px 0 #fff;mask-image:radial-gradient(circle 100px at var(--reveal-x,45%) var(--reveal-y,50%),#000 14%,transparent 100%);-webkit-mask-image:radial-gradient(circle 100px at var(--reveal-x,45%) var(--reveal-y,50%),#000 14%,transparent 100%)}.hero-title-reveal em{color:#111}
+.ripple-surface{display:initial}
+@media(min-width:1121px){.sidebar:hover+.main-area{margin-left:252px}}
+@media(min-width:801px) and (max-width:1120px){.sidebar{width:220px}.sidebar:hover{width:220px}.sidebar:hover+.main-area{margin-left:220px}}
+@media(max-width:800px){.sidebar{width:260px;transition:transform .25s ease,box-shadow .25s ease}.sidebar:hover{width:260px}.global-ripple-bg{background-size:28px 28px;opacity:.38}}
+@media(max-width:430px){.hero-title-base,.hero-title-reveal{white-space:normal}.hero-typewriter{display:none}}
+@media(prefers-reduced-motion:reduce){.global-ripple-bg:after{transition:none}}
