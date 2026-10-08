@@ -1,6 +1,6 @@
 # VolatilityLab
 
-A light-first financial analysis platform for time-series forecasting, European option valuation and portfolio tail-risk analysis. The React interface is a separate client of a FastAPI service; all financial calculations remain in the existing Python modules under `src/`.
+A financial analysis platform for time-series forecasting, European option valuation and portfolio tail-risk analysis. The React interface is a separate client of a FastAPI service; all financial calculations remain in the existing Python modules under `src/`.
 
 The interface uses a white and charcoal palette, Inter typography, a subtle full-page pointer ripple, and restrained hover states. Its persistent navigation groups forecasting, derivatives, portfolio risk and documentation in one workspace.
 
